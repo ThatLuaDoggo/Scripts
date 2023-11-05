@@ -5,4 +5,4 @@ _________
 ## Table Of Contents
 |Table Of Contents|
 |---|---|
-|Minecraft|**Open Computers:** [tracks.lua: Lua - Used in railway sim]
+|Minecraft|**Open Computers:** [tracks.lua: Lua - Used in railway sim]|
