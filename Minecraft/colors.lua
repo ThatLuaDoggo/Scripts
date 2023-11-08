@@ -23,19 +23,15 @@ local Colors = {
       Request = "0xed9b58",
       Input = "0xf5af76",
       Info = {
-        Start = "0x7fd9e3",
         Write = "0x7fb4e3"
       },
       Warn = {
-        Start = "0xe3cc7f",
         Write = "0xfad048"
       },
       Error = {
-        Start = "0xc26e65",
         Write = "0xe65f50"
       },
       Output = {
-        Start = "0xb1c1e6",
         Write = "0x9db6ed"
       }
     },
