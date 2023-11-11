@@ -7,7 +7,9 @@ function wget(url, file, ...)
   for _, i in next, folders do
     path = path .. i .. "/"
   end
-  os.execute("wget -fq " .. url .. " " .. path .. file)
+  pcall(function()
+      os.execute("wget -fq " .. url .. " " .. path .. file)
+  end)
 end
 function rm(file, ...)
   local folders = {...}
@@ -15,7 +17,9 @@ function rm(file, ...)
   for _, i in next, folders do
     path = path .. i .. "/"
   end
-  os.execute("rm " .. path .. file)
+  pcall(function()
+    os.execute("rm " .. path .. file)
+  end)
 end
 local s, m = pcall(function()
     wget("https://www.example.com", "/system/wget.html")
@@ -30,14 +34,16 @@ function read(file, ...)
   for _, i in next, folders do
     path = path .. i .. "/"
   end
-  local file = io.open(path, "r")
-  if(file)then
-    local read = file:read()
-    io.close(file)
-    return true, read
-  else
-    return false, ""
-  end
+  pcall(function()
+      local file = io.open(path, "r")
+      if(file)then
+        local read = file:read()
+        io.close(file)
+        return true, read
+      else
+        return false, ""
+      end
+  end)
 end
 function write(mode, text, file, ...)
   local folders = {...}
@@ -45,13 +51,15 @@ function write(mode, text, file, ...)
   for _, i in next, folders do
     path = path .. i .. "/"
   end
-  local file = io.open(path, (method == "append" and "a" or method == "write" and "w" or "r"))
-  if(file)then
-    file:write(text)
-    return true
-  else
-    return false
-  end
+  pcall(function()
+      local file = io.open(path, (method == "append" and "a" and method == "write" and "w" or "r"))
+      if(file)then
+        file:write(text)
+        return true
+      else
+        return false
+      end
+  end)
 end
 local computer = require("computer")
 local component = require("component")
@@ -64,47 +72,56 @@ local beep = computer.beep
 sf = gpu.setForeground
 gf = gpu.getForeground
 ----------------------------------------------
-function log(text, start, color)
+function log(text, start, color, mode)
   local f = gf()
   start = start and "| > " or ""
+  color = color or "0xFFFFFF"
+  mode = (mode == 0 and "Dark" or mode == 1 and "Light" or "Light")
   if(colors)then
-    if(colors.__Information[color])then
-      if(type(colors.__Information[color])=="table")then
-        sf(colors.__Information[color].Write)
-      end
+    if(colors.__Information[mode][color])then
+      color = tonumber(colors.__Information[color])
+    elseif(colors[mode][color])then
+      color = tonumber(colors[mode][color])
+    else
+      xpcall(function()
+          sf(tonumber(color))
+          sf(f)
+      end, function()
+          xpcall(function()
+              color = tostring(color):gsub("#", "0x")
+              sf(color)
+              sf(f)
+          end, function()
+              color = "0xFFFFFF"
+          end)
+      end)
     end
   end
-  if(colors[color])then
-    pcall(function()
-        sf(colors[color])
-    end)
-  else
-    pcall(function()
-        color = tostring(color):gsub("#", "0x")
-        sf(color)
-    end)
-  end
-  print(start .. text)
-  sf(f)
+  pcall(function()
+      sf(color)
+      print(start .. text)
+      sf(f)
+  end)
 end
 local function __setup()
   term.clear()
-  local s, content = read("colors.lua", "system")
-  if not(s)then
-    log("Downloading Files... ('colors.lua')")
-    wget("https://raw.githubusercontent.com/ThatLuaDoggo/Scripts/main/Minecraft/colors.lua", "colors.lua", "system")
-    s, content = read("colors.lua", "system")
-    if not(s)then
-      log("An Error Occured in the File 'colors.lua'")
-      return
-    end
-  end
-  local s, m = pcall(function()
-      load(content)()
+  log("Checking System Content", true, "Info", 1)
+  local s1, content1, s2, content2 = read("colors.lua", "system"), read("tracks.lua", "system")
+  xpcall(function()
+      load(content1)()
+      load(content2)()
+  end, function()
+      rm("colors.lua", "system")
+      rm("tracks.lua", "system")
+      wget("https://raw.githubusercontent.com/ThatLuaDoggo/Scripts/main/Minecraft/colors.lua", "colors.lua", "system")
+      wget("https://raw.githubusercontent.com/ThatLuaDoggo/Scripts/main/Minecraft/tracks.lua", "tracks.lua", "system")
+      s1, content1, s2, content2 = read("colors.lua", "system"), read("tracks.lua", "system")
+      xpcall(function()
+          colors = load(content1)()
+          api = load(content2)()
+      end, function()
+          log("Could not load Colors ('colors.lua') and System API ('tracks.lua'),\nUnfortunately this System cannot run without them.\nPlease try again later and restart your Computer.", true, "0xfa453e", 1)
+      end)
   end)
-  if not(s)then
-    log("An Error Occured in the File 'colors.lua'")
-    return
-  end
-  colors = load(content)()
+  
 end
