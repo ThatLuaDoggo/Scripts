@@ -22,25 +22,21 @@ local Colors = {
       Dark = "0x2e2e30",
       Request = "0xed9b58",
       Input = "0xf5af76",
-      Info = {
-        Write = "0x7fb4e3"
-      },
-      Warn = {
-        Write = "0xfad048"
-      },
-      Error = {
-        Write = "0xe65f50"
-      },
-      Output = {
-        Write = "0x9db6ed"
-      }
+      Info = "0x7fb4e3",
+      Warn = "0xfad048",
+      Error = "0xe65f50",
+      Output = "0x9db6ed"
     },
     Dark = {
       White = "0xcfd0e6",
       Black = "0x000000",
       Dark = "0x2e2e30",
       Request = "0xed9b58",
-      Input = "0xf5af76"
+      Input = "0xf5af76",
+      Info = "0x7fb4e3",
+      Warn = "0xfad048",
+      Error = "0xe65f50",
+      Output = "0x9db6ed"
     }
   }
 }
