@@ -63,6 +63,7 @@ function write(mode, text, file, ...)
 end
 local computer = require("computer")
 local component = require("component")
+local event = require("event")
 local term = require("term")
 local internet = component.internet
 local gpu = component.gpu
@@ -104,6 +105,7 @@ function log(text, start, color, mode)
   end)
 end
 local function __setup()
+  local continue = true
   term.clear()
   log("Checking System Content", true, "Info", 1)
   local s1, content1, s2, content2 = read("colors.lua", "system"), read("tracks.lua", "system")
@@ -121,7 +123,20 @@ local function __setup()
           api = load(content2)()
       end, function()
           log("Could not load Colors ('colors.lua') and System API ('tracks.lua'),\nUnfortunately this System cannot run without them.\nPlease try again later and restart your Computer.", true, "0xfa453e", 1)
+          continue = false
       end)
   end)
-  
+  if(continue)then
+    term.clear()
+    log("Searching for nearest Server...\n(30 Seconds)", true, "Info", 1)
+    local s = os.date("*t").sec
+    local c = os.clock()
+    local m = os.date("*t").min
+    local r = c * s * 1000 / m
+    for port = 1, 100 do
+      term.clear()
+      modem.broadcast(port, "-connect+3000," .. tostring(r))
+      local type, a, from, port, b, message = event.pull("modem")
+    end
+  end
 end
